@@ -16,6 +16,19 @@ METAL_HELLSINGER_ASSET_DIRS = [
 ASSET_DIR = '' # Gets set up in check_asset_dirs() before dispatch
 MY_JSON_NAME = 'customsongs-mgr-imported.json'
 
+LEVEL_NAMES = [
+    'Tutorial',
+    'Voke',
+    'Stygia',
+    'Yhelm',
+    'Incaustis',
+    'Gehenna',
+    'Nihil',
+    'Acheron',
+    'Sheol',
+    'Hell_Gates',  # Not sure what this is
+ ]
+
 # ----------------
 # Functions mapped to CLI commands
 # ----------------
@@ -105,10 +118,15 @@ def set_main_music(level_name: str, song_name: str):
 def set_boss_music(level_name: str, song_name: str):
     set_music(level_name, song_name, "BossMusic")
 
-def set_music(level_name: str,  song_name: str, music_type_key: str):
+def set_music(level_name: str, song_name: str, music_type_key: str):
     req_song = get_imported_song(song_name)
     if req_song is None:
         print(f"Can't find imported song with name \"{song_name}\". Try using the list command to check songs.")
+        exit(1)
+    level_name = get_vanilla_level_name(level_name)
+    if level_name is None:
+        print("Invalid vanilla level name.")
+        print(f"Valid level names: {LEVEL_NAMES}")
         exit(1)
 
     game_json = get_game_custom_songs_json()
@@ -235,6 +253,12 @@ def remove_print_err(path):
         os.remove(path)
     except:
         print(f"Warning: Failed to remove file {path}")
+
+def get_vanilla_level_name(req_level: str) -> str | None:
+    for name in LEVEL_NAMES:
+        if name.casefold() == req_level.casefold():
+            return name
+    return None
 
 # ----------------
 # Args parser & dispatch
