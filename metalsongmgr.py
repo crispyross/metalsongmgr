@@ -135,19 +135,16 @@ def set_music(level_name: str,  song_name: str, music_type_key: str):
         json.dump(game_json, f, indent=4)
     print('Added new custom song/level association.')
 
-def info(field: str, song_name: str):
+def info(song_name: str):
     s = get_imported_song(song_name)
     if s is None:
         print(f"Can't find imported song with name \"{song_name}\". Try using the list command to check songs.")
         return
     
-    # Field validation w/ forgiving capitalization
-    fields = ['BPM', 'Bank', 'BeatInputOffset', 'Event', 'LowHealthBeatEvent']
-    for f in fields:
-        if f.lower() == field.lower():
-            print(s[f])
-            return
-    print(f'Invalid field {field}.')
+    song_name = s['Bank']  # Proper capitalization
+    print(f"Info for imported song {song_name}:")
+    for field, val in s.items():
+        print(f"\t{field}: {val}")
         
 def remove_main_music(level_name: str):
     remove_music(level_name, "MainMusic")
@@ -208,7 +205,7 @@ def get_imported_song(name: str) -> dict | None:
     if songs is None:
         return None
     for song in songs:
-        if song['Bank'] == name:
+        if song['Bank'].casefold() == name.casefold():
             return song
     return None
 
@@ -250,8 +247,8 @@ def help_exit():
     print('   lists all imported songs.')
     print('installed:')
     print('   lists all installed songs, i.e. current mappings in customsongs.json.')
-    print('info <BPM|Bank|BeatInputOffset|Event|LowHealthBeatEvent> <songName>:')
-    print('   Shows the specified field for the song.')
+    print('info <songName>:')
+    print('   Shows metadata for the given song.')
     print('import <zip_path>:')
     print('   imports a zip file containing a .bank file and a customsongs.json, so that the song may be installed to a stage.')
     print('install / install-main <level_name> <song_name>:')
